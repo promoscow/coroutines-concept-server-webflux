@@ -12,6 +12,7 @@ import org.springframework.http.client.reactive.ReactorClientHttpConnector
 import org.springframework.web.reactive.function.client.WebClient
 import reactor.netty.http.client.HttpClient
 import reactor.netty.resources.ConnectionProvider
+import ru.chernyshoff.server.webflux.dao.client.filter.PostAwaitingThreadsFilter
 import java.time.Duration
 import java.util.concurrent.TimeUnit
 
@@ -19,12 +20,13 @@ import java.util.concurrent.TimeUnit
 class WebClientConfiguration {
 
     @Bean
-    fun webClient(meterRegistry: MeterRegistry): WebClient {
+    fun webClient(meterRegistry: MeterRegistry, postAwaitingThreadsFilter: PostAwaitingThreadsFilter): WebClient {
         val observationRegistry = ObservationRegistry.create()
         observationRegistry.observationConfig().observationHandler(DefaultMeterObservationHandler(meterRegistry))
         return WebClient.builder()
             .clientConnector(ReactorClientHttpConnector(httpClient()))
             .observationRegistry(observationRegistry)
+            .filter(postAwaitingThreadsFilter)
             .defaultHeader("Accept", "application/json")
             .build()
     }
