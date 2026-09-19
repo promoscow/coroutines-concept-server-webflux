@@ -12,6 +12,16 @@ services:
       timeout: 3s
       retries: 20
       start_period: 10s
+    sysctls:
+      net.core.somaxconn: 65535
+    ulimits:
+      nofile:
+        soft: 1048576
+        hard: 1048576
+    deploy:
+      resources:
+        limits:
+          memory: 1G
   server:
     build: .
     container_name: server
@@ -19,6 +29,7 @@ services:
       - "8011:8011"
     environment:
       - APP_IO_HOST=http://io:8021
+      - JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75.0
     depends_on:
       io:
         condition: service_healthy
@@ -30,6 +41,12 @@ services:
       timeout: 3s
       retries: 20
       start_period: 15s
+    sysctls:
+      net.core.somaxconn: 65535
+    ulimits:
+      nofile:
+        soft: 1048576
+        hard: 1048576
     deploy:
       resources:
         limits:
@@ -37,16 +54,23 @@ services:
           memory: 4G
   client:
     build: ../coroutines-concept-client
-    container_name: client
-    ports:
-      - "8001:8001"
     environment:
-      - APP_REQUESTS_PER_SECOND=10000
+      - APP_REQUESTS_PER_SECOND=${CLIENT_RPS:-1000}
+      - JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75.0
     depends_on:
       server:
         condition: service_healthy
     networks:
       - coroutines-concept-network
+    ulimits:
+      nofile:
+        soft: 1048576
+        hard: 1048576
+    deploy:
+      replicas: ${CLIENT_REPLICAS:-1}
+      resources:
+        limits:
+          memory: 512M
 networks:
   coroutines-concept-network:
     driver: bridge
