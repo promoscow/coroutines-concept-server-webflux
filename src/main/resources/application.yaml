@@ -9,6 +9,8 @@ app:
   service-prefix: server-webflux
   tcp:
     backlog: 100000
+client:
+  mode: blocking
 management:
   endpoints:
     web:

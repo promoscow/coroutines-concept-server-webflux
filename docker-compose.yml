@@ -29,7 +29,8 @@ services:
       - "8011:8011"
     environment:
       - APP_IO_HOST=http://io:8021
-      - JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=75.0
+      - JAVA_TOOL_OPTIONS=-XX:MaxRAMPercentage=80.0
+      - CLIENT_MODE=${CLIENT_MODE:-reactive}
     depends_on:
       io:
         condition: service_healthy
